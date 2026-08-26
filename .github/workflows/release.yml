@@ -1,0 +1,65 @@
+name: build and release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "23 5 * * *"
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+concurrency:
+  group: static-rsync-release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Track the latest upstream release
+        if: github.event_name == 'schedule'
+        run: |
+          latest=$(curl -fsSL https://download.samba.org/pub/rsync/src/ \
+            | sed -n 's/.*href="rsync-\([0-9][0-9.]*\)\.tar\.gz".*/\1/p' \
+            | sort -V | tail -1)
+          test -n "$latest"
+          if test "$latest" != "$(cat VERSION)"; then
+            echo "$latest" > VERSION
+            git config user.name github-actions
+            git config user.email github-actions@github.com
+            git add VERSION
+            git commit -m "build: update rsync to $latest [skip ci]"
+            git push
+          fi
+
+      - name: Build in pinned Alpine
+        run: |
+          docker run --rm -v "$PWD:/work" -w /work \
+            alpine@sha256:14358309a308569c32bdc37e2e0e9694be33a9d99e68afb0f5ff33cc1f695dce \
+            sh -c 'apk add --no-cache build-base curl gnupg file binutils acl-dev acl-static attr-dev attr-static openssl-dev openssl-libs-static zstd-dev zstd-static lz4-dev lz4-static && ./build.sh'
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: static-rsync
+          path: dist/*
+
+      - uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
+        with:
+          subject-path: dist/*.tar.gz
+
+      - name: Publish new version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(cat VERSION)
+          if ! gh release view "v$version" >/dev/null 2>&1; then
+            gh release create "v$version" dist/*.tar.gz dist/*.sha256 \
+              --target "$(git rev-parse HEAD)" \
+              --title "rsync $version (static)" \
+              --notes "Statically linked musl build of rsync $version."
