@@ -41,7 +41,7 @@ jobs:
               git config user.name github-actions
               git config user.email github-actions@github.com
               git add VERSION
-              git commit -m "build: update rsync to $version [skip ci]"
+              git commit -m "build: update rsync to $version"
               git push
             fi
           fi
