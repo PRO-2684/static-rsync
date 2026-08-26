@@ -1,7 +1,7 @@
 # static-rsync
 
-Statically linked rsync for Linux, built with musl and all default optional
-features: ACLs, xattrs, OpenSSL, xxHash, zstd, and lz4.
+Statically linked rsync for x86_64 and ARM64 Linux, built with musl and all
+default optional features: ACLs, xattrs, OpenSSL, xxHash, zstd, and lz4.
 
 GitHub Actions checks the official rsync download directory daily. A new
 version is verified with the upstream signing key, built, smoke-tested, and
