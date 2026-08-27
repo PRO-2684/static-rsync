@@ -35,10 +35,14 @@ install -Dm644 "$work/xxHash-$xxhash_version/xxhash.h" "$work/deps/include/xxhas
 
 tar -C "$work" -xf "$work/rsync.tar.gz"
 cd "$work/rsync-$version"
+configure_features=
+if test "$(uname -m)" = x86_64; then
+  configure_features="--enable-roll-simd --enable-roll-asm"
+fi
 CPPFLAGS="-I$work/deps/include" \
 LDFLAGS="-static -L$work/deps/lib -Wl,--build-id=none" \
   ./configure CFLAGS="-Os -fno-ident" \
-    --with-included-popt --with-included-zlib
+    --with-included-popt --with-included-zlib $configure_features
 make -j"$(getconf _NPROCESSORS_ONLN)"
 strip rsync
 
@@ -57,6 +61,9 @@ echo static-rsync > "$work/smoke/source/file"
 cmp "$work/smoke/source/file" "$work/smoke/destination/file"
 
 arch=$(uname -m)
+if test "$arch" = x86_64; then
+  echo "$features" | grep -q 'SIMD-roll, asm-roll'
+fi
 artifact="rsync-$version-linux-$arch"
 mkdir -p "$OLDPWD/dist/$artifact"
 install -m755 rsync "$OLDPWD/dist/$artifact/rsync"
