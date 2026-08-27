@@ -43,7 +43,7 @@ if ! CPPFLAGS="-I$work/deps/include" \
   LDFLAGS="-static -L$work/deps/lib -Wl,--build-id=none" \
     ./configure CFLAGS="-Os -fno-ident" \
       --with-included-popt --with-included-zlib $configure_features; then
-  tail -200 config.log
+  tail -600 config.log
   exit 1
 fi
 make -j"$(getconf _NPROCESSORS_ONLN)"
