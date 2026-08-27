@@ -1,16 +1,14 @@
 # static-rsync
 
-Statically linked rsync for x86_64 and ARM64 Linux, built with musl and all
-default optional features: ACLs, xattrs, OpenSSL, xxHash, zstd, and lz4.
+[![Attested](https://img.shields.io/badge/Attested-brightgreen?style=flat&logo=github)](#verify-the-build)
 
-GitHub Actions checks the official rsync download directory daily. A new
-version is verified with the upstream signing key, built, smoke-tested, and
-published as a GitHub release with checksums and build provenance.
+Statically linked rsync for x86_64 and ARM64 Linux, built with musl and all default optional features: ACLs, xattrs, OpenSSL, xxHash, zstd, and lz4.
+
+GitHub Actions checks the official rsync download directory daily. A new version is verified with the upstream signing key, built, smoke-tested, and published as a GitHub release with checksums and build provenance.
 
 ## Build locally
 
-Docker is only used as an ephemeral Alpine build environment; this repository
-does not need a Dockerfile.
+Docker is only used as an ephemeral Alpine build environment; this repository does not need a Dockerfile.
 
 ```sh
 docker run --rm \
@@ -23,3 +21,12 @@ docker run --rm \
 ```
 
 Artifacts are written to `dist/`.
+
+## Verify the build
+
+You can verify [artifact attestations](https://docs.github.com/en/actions/concepts/security/artifact-attestations) with [GitHub CLI](https://cli.github.com/manual/gh_attestation_verify):
+
+```sh
+gh attestation verify --owner PRO-2684 <filename>
+```
+
