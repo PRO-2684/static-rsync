@@ -39,10 +39,13 @@ configure_features=
 if test "$(uname -m)" = x86_64; then
   configure_features="--enable-roll-simd --enable-roll-asm"
 fi
-CPPFLAGS="-I$work/deps/include" \
-LDFLAGS="-static -L$work/deps/lib -Wl,--build-id=none" \
-  ./configure CFLAGS="-Os -fno-ident" \
-    --with-included-popt --with-included-zlib $configure_features
+if ! CPPFLAGS="-I$work/deps/include" \
+  LDFLAGS="-static -L$work/deps/lib -Wl,--build-id=none" \
+    ./configure CFLAGS="-Os -fno-ident" \
+      --with-included-popt --with-included-zlib $configure_features; then
+  tail -200 config.log
+  exit 1
+fi
 make -j"$(getconf _NPROCESSORS_ONLN)"
 strip rsync
 
