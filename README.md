@@ -29,9 +29,3 @@ GitHub automatically [attests immutable releases](https://docs.github.com/en/cod
 ```sh
 gh release verify-asset <tag> <filename> --repo PRO-2684/static-rsync
 ```
-
-Release v3.5.0 predates immutable releases and uses an Actions artifact attestation instead:
-
-```sh
-gh attestation verify --owner PRO-2684 <filename>
-```
