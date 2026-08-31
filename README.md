@@ -1,10 +1,10 @@
 # static-rsync
 
-[![Attested](https://img.shields.io/badge/Attested-brightgreen?style=flat&logo=github)](#verify-the-build)
+[![Attested](https://img.shields.io/badge/Attested-brightgreen?style=flat&logo=github)](#verify-a-release)
 
 Statically linked rsync for x86_64 and ARM64 Linux, built with musl and all default optional features: ACLs, xattrs, OpenSSL, xxHash, zstd, and lz4.
 
-GitHub Actions checks the official rsync download directory daily. A new version is verified with the upstream signing key, built, smoke-tested, and published as a GitHub release with checksums and build provenance.
+GitHub Actions checks the official rsync download directory daily. A new version is verified with the upstream signing key, built, smoke-tested, and published as an immutable GitHub release with checksums.
 
 ## Build locally
 
@@ -22,11 +22,16 @@ docker run --rm \
 
 Artifacts are written to `dist/`.
 
-## Verify the build
+## Verify a release
 
-You can verify [artifact attestations](https://docs.github.com/en/actions/concepts/security/artifact-attestations) with [GitHub CLI](https://cli.github.com/manual/gh_attestation_verify):
+GitHub automatically [attests immutable releases](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases). Verify a downloaded asset with GitHub CLI:
+
+```sh
+gh release verify-asset <tag> <filename> --repo PRO-2684/static-rsync
+```
+
+Release v3.5.0 predates immutable releases and uses an Actions artifact attestation instead:
 
 ```sh
 gh attestation verify --owner PRO-2684 <filename>
 ```
-
